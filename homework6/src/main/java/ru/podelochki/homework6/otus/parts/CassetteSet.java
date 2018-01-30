@@ -1,4 +1,4 @@
-package ru.podelochki.homework6.parts;
+package ru.podelochki.homework6.otus.parts;
 
 import java.util.Collections;
 import java.util.HashMap;

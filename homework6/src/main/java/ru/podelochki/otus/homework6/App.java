@@ -1,7 +1,7 @@
 package ru.podelochki.otus.homework6;
 
-import ru.podelochki.homework6.parts.Atm;
-import ru.podelochki.homework6.parts.Cassette;
+import ru.podelochki.homework6.otus.parts.Atm;
+import ru.podelochki.homework6.otus.parts.Cassette;
 import ru.podelochki.otus.homework6.currencies.Note;
 import ru.podelochki.otus.homework6.currencies.Rouble;
 

@@ -34,4 +34,11 @@ public class CassetteSet extends TreeSet<Cassette>{
 	public void restore() {
 		dispenseList = new HashMap<>();
 	}
+	public int getTotalAmount() {
+		int total = 0;
+		for(Cassette cassette: this) {
+			total += cassette.getNotesLeft() * cassette.getNote().getNominal();
+		}
+		return total;
+	}
 }

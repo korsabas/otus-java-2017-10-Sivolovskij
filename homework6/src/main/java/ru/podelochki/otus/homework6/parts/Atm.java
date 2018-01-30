@@ -33,4 +33,11 @@ public class Atm {
 		}
 		
 	}
+	public Map<Currency,Integer> getAmountLeft() {
+		Map<Currency,Integer> amountMap = new HashMap<>();
+		for (Currency currency: cassetteMap.keySet()) {
+			amountMap.put(currency, cassetteMap.get(currency).getTotalAmount());
+		}
+		return amountMap;
+	}
 }

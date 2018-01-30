@@ -68,5 +68,15 @@ public class AtmTest {
         assertEquals(5, cassette1000.getNotesLeft());
         assertEquals(4, cassette100.getNotesLeft());
     }
+	@Test
+    public void shouldReturnTotalAmountLeft(){
+		Atm atm = new Atm();
+		Cassette cassette1000 = new Cassette(new Note<Rouble>(Rouble.getInstance(), 1000), 5);
+		Cassette cassette100 = new Cassette(new Note<Rouble>(Rouble.getInstance(), 100), 4);
+        atm.loadMoney(cassette1000);
+        atm.loadMoney(cassette100);
+        assertEquals(5400, atm.getAmountLeft().get(Rouble.getInstance()).intValue());
+
+    }
 
 }

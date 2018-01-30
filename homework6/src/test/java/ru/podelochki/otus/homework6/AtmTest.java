@@ -6,12 +6,12 @@ import java.util.Iterator;
 
 import org.junit.Test;
 
-import ru.podelochki.homework6.otus.parts.Atm;
-import ru.podelochki.homework6.otus.parts.Cassette;
-import ru.podelochki.homework6.otus.parts.CassetteSet;
 import ru.podelochki.otus.homework6.currencies.Note;
 import ru.podelochki.otus.homework6.currencies.Rouble;
 import ru.podelochki.otus.homework6.exceptions.CouldNotWithdrawException;
+import ru.podelochki.otus.homework6.parts.Atm;
+import ru.podelochki.otus.homework6.parts.Cassette;
+import ru.podelochki.otus.homework6.parts.CassetteSet;
 
 public class AtmTest {
 	@Test

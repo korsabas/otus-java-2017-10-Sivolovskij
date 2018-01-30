@@ -1,4 +1,4 @@
-package ru.podelochki.homework6.otus.parts;
+package ru.podelochki.otus.homework6.parts;
 
 import ru.podelochki.otus.homework6.currencies.Currency;
 import ru.podelochki.otus.homework6.currencies.Note;

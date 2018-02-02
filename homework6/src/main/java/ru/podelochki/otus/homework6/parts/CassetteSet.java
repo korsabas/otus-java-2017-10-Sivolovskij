@@ -2,9 +2,13 @@ package ru.podelochki.otus.homework6.parts;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+
+import ru.podelochki.otus.homework6.currencies.Currency;
+import ru.podelochki.otus.homework6.currencies.Note;
 
 public class CassetteSet extends TreeSet<Cassette>{
 	
@@ -24,12 +28,17 @@ public class CassetteSet extends TreeSet<Cassette>{
 		}
 		return false;
 	}
-	public void dispense() {
+	public Map<Note<?>, Integer> dispense() {
 		Set<Cassette> cassettes = dispenseList.keySet();
+		Map<Note<?>, Integer> notesList = new HashMap<>();
 		for (Cassette cassette: cassettes) {
+			int quantity = dispenseList.get(cassette);
+			notesList.put(cassette.getNote(), quantity);
 			cassette.withdrawNotes(dispenseList.get(cassette));
+			
 		}
 		restore();
+		return notesList;
 	}
 	public void restore() {
 		dispenseList = new HashMap<>();

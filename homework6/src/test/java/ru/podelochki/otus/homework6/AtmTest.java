@@ -3,6 +3,7 @@ package ru.podelochki.otus.homework6;
 import static org.junit.Assert.*;
 
 import java.util.Iterator;
+import java.util.Map.Entry;
 
 import org.junit.Test;
 
@@ -80,12 +81,22 @@ public class AtmTest {
 
     }
 	@Test
-    public void shouldGetProperCurrencyName() {
+    public void shouldGetProperCurrencyName() throws Exception {
 		Atm atm = new Atm();
         atm.loadMoney(new Cassette(new Note<Rouble>(Rouble.getInstance(), 1000), 5));
         atm.loadMoney(new Cassette(new Note<Rouble>(Rouble.getInstance(), 100), 1));
         Transaction transaction = atm.withdraw(Rouble.getInstance(), 3100);
         assertEquals("rouble", transaction.getCurrency().getName());
+        for (Entry<Note<?>, Integer> notePack : transaction.getNotesList().entrySet()) {
+        	assertEquals(Rouble.getInstance(), notePack.getKey().getCurrency());
+        	if (notePack.getValue() ==3) {
+        		assertEquals(1000, notePack.getKey().getNominal());
+        	} else if (notePack.getValue() == 1) {
+        		assertEquals(100, notePack.getKey().getNominal());
+        	} else {
+        		throw new Exception("Unexpected value");
+        	}
+        }
     }
 
 }

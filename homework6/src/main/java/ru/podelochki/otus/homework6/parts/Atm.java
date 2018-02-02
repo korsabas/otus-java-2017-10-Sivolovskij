@@ -15,8 +15,9 @@ public class Atm {
 		dispenser = new Dispenser(cassetteMap);
 		
 	}
-	public void withdraw(Currency currency, int amount) throws CouldNotWithdrawException {
+	public Transaction withdraw(Currency currency, int amount) throws CouldNotWithdrawException {
 		dispenser.dispense(currency, amount);
+		return new Transaction(Transaction.Type.WITHDRAW, currency, amount);
 	}
 	public void loadMoney(Collection<Cassette> cassettes) {
 		for(Cassette cassette: cassettes) {

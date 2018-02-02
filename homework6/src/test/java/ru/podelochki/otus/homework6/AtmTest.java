@@ -12,6 +12,7 @@ import ru.podelochki.otus.homework6.exceptions.CouldNotWithdrawException;
 import ru.podelochki.otus.homework6.parts.Atm;
 import ru.podelochki.otus.homework6.parts.Cassette;
 import ru.podelochki.otus.homework6.parts.CassetteSet;
+import ru.podelochki.otus.homework6.parts.Transaction;
 
 public class AtmTest {
 	@Test
@@ -77,6 +78,14 @@ public class AtmTest {
         atm.loadMoney(cassette100);
         assertEquals(5400, atm.getAmountLeft().get(Rouble.getInstance()).intValue());
 
+    }
+	@Test
+    public void shouldGetProperCurrencyName() {
+		Atm atm = new Atm();
+        atm.loadMoney(new Cassette(new Note<Rouble>(Rouble.getInstance(), 1000), 5));
+        atm.loadMoney(new Cassette(new Note<Rouble>(Rouble.getInstance(), 100), 1));
+        Transaction transaction = atm.withdraw(Rouble.getInstance(), 3100);
+        assertEquals("rouble", transaction.getCurrency().getName());
     }
 
 }

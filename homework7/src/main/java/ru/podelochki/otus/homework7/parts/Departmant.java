@@ -52,4 +52,9 @@ public class Departmant {
 		}
 		return amountLeft;
 	}
+	public void restoreInitialState() {
+		for (Atm atm: atms) {
+			atm.restoreInitialState();
+		}
+	}
 }

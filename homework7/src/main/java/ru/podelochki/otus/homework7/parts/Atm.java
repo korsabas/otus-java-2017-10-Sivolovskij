@@ -11,6 +11,7 @@ import ru.podelochki.otus.homework6.exceptions.CouldNotWithdrawException;
 import ru.podelochki.otus.homework6.parts.Cassette;
 import ru.podelochki.otus.homework6.parts.CassetteSet;
 import ru.podelochki.otus.homework6.parts.Dispenser;
+import ru.podelochki.otus.homework6.parts.Transaction;
 import ru.podelochki.otus.homework7.utils.AtmUtils;
 
 
@@ -23,8 +24,8 @@ public class Atm {
 		dispenser = new Dispenser(cassetteMap);
 		
 	}
-	public void withdraw(Currency currency, int amount) throws CouldNotWithdrawException {
-		dispenser.dispense(currency, amount);
+	public Transaction withdraw(Currency currency, int amount) throws CouldNotWithdrawException {
+		return new Transaction(Transaction.Type.WITHDRAW, currency, amount, dispenser.dispense(currency, amount));
 	}
 	public void loadCassettes(Collection<Cassette> cassettes) {
 		for(Cassette cassette: cassettes) {
@@ -60,9 +61,9 @@ public class Atm {
 		states.add(AtmUtils.copyCassetteMap(this.cassetteMap));
 	}
 	public void restoreState(int stateNumber) {
-		this.cassetteMap = states.get(stateNumber);
+		this.cassetteMap = (stateNumber > -1) && (stateNumber < states.size()) ? states.get(stateNumber): this.cassetteMap;
 	}
 	public void restoreInitialState() {
-		this.cassetteMap = states.get(0);
+		restoreState(0);
 	}
 }

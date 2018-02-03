@@ -2,7 +2,6 @@ package ru.podelochki.otus.homework7;
 
 import static org.junit.Assert.*;
 
-import java.util.Iterator;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -38,9 +37,7 @@ public class AppTest {
         assertEquals(6600, dep.getAtm(0).getAmountLeft().get(Rouble.getInstance()).intValue());
         assertEquals(4400, dep.getAtm(1).getAmountLeft().get(Rouble.getInstance()).intValue());
         assertEquals(2200, dep.getAtm(2).getAmountLeft().get(Rouble.getInstance()).intValue());
-        dep.getAtm(0).restoreInitialState();
-        dep.getAtm(1).restoreInitialState();
-        dep.getAtm(2).restoreInitialState();
+        dep.restoreInitialState();
         assertEquals(7700, dep.getAtm(0).getAmountLeft().get(Rouble.getInstance()).intValue());
         assertEquals(6600, dep.getAtm(1).getAmountLeft().get(Rouble.getInstance()).intValue());
         assertEquals(5500, dep.getAtm(2).getAmountLeft().get(Rouble.getInstance()).intValue());
@@ -48,5 +45,15 @@ public class AppTest {
 	@Test
 	public void shouldGetTotalAmount() {
 		assertEquals(19800, dep.getTotalAmountLeft().get(Rouble.getInstance()).intValue());
+	}
+	@Test
+	public void incorrectStateNumber() {
+		dep.getAtm(0).withdraw(Rouble.getInstance(), 1100);
+		dep.getAtm(0).restoreState(-1);
+		assertEquals(6600, dep.getAtm(0).getAmountLeft().get(Rouble.getInstance()).intValue());
+		dep.getAtm(0).restoreState(7);
+		assertEquals(6600, dep.getAtm(0).getAmountLeft().get(Rouble.getInstance()).intValue());
+		dep.getAtm(0).restoreState(0);
+		assertEquals(7700, dep.getAtm(0).getAmountLeft().get(Rouble.getInstance()).intValue());
 	}
 }

@@ -1,11 +1,7 @@
 package ru.podelochki.otus.homework7;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import ru.podelochki.otus.homework6.currencies.Note;
 import ru.podelochki.otus.homework6.currencies.Rouble;
-import ru.podelochki.otus.homework6.parts.Atm;
 import ru.podelochki.otus.homework6.parts.Cassette;
 import ru.podelochki.otus.homework7.parts.Departmant;
 
@@ -33,9 +29,7 @@ public class App
         System.out.println("Amount Left at atm 0 = " + dep.getAtm(0).getAmountLeft().get(Rouble.getInstance()));
         System.out.println("Amount Left at atm 1 = " + dep.getAtm(1).getAmountLeft().get(Rouble.getInstance()));
         System.out.println("Amount Left at atm 2 = " + dep.getAtm(2).getAmountLeft().get(Rouble.getInstance()));
-        dep.getAtm(0).restoreInitialState();
-        dep.getAtm(1).restoreInitialState();
-        dep.getAtm(2).restoreInitialState();
+        dep.restoreInitialState();
         System.out.println("Amount Left at atm 0 = " + dep.getAtm(0).getAmountLeft().get(Rouble.getInstance()));
         System.out.println("Amount Left at atm 1 = " + dep.getAtm(1).getAmountLeft().get(Rouble.getInstance()));
         System.out.println("Amount Left at atm 2 = " + dep.getAtm(2).getAmountLeft().get(Rouble.getInstance()));

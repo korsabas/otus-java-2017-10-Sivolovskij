@@ -17,11 +17,13 @@ public class App
         DBExecutor executor = ExecutorFactory.getExecutor(connectionUrl);
         UserDataSet ds = new UserDataSet("mike", 50);
         try {
+        	executor.save(ds);
 			user = executor.load(1, UserDataSet.class);
-			executor.save(ds);
+			
 		} catch (Exception e1) {
 			e1.printStackTrace();
 		}
         executor.close();
+        System.out.println("id=" + user.getId() + ", name=" + user.getName() + ", age=" + user.getAge());
     }
 }

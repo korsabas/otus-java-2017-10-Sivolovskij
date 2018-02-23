@@ -19,6 +19,9 @@ public class DBServiceHibernateImpl implements DBService {
 		mysqlFactory = new Configuration().configure("hibernate.cfg.xml").addAnnotatedClass(UsersDataSet.class).addAnnotatedClass(PhoneDataSet.class)
 				.addAnnotatedClass(AddressDataSet.class).buildSessionFactory();
 	}
+	/* (non-Javadoc)
+	 * @see ru.podelochki.otus.homework11.services.DBService#load(long, java.lang.Class)
+	 */
 	@Override
 	public <T extends DataSet> T load(long id, Class<T> clazz) {
 		DataSet cachedElement = cache.get(id).getValue();
@@ -28,6 +31,7 @@ public class DBServiceHibernateImpl implements DBService {
 		session.beginTransaction();
 		T result = session.load(clazz, id);
 		session.getTransaction().commit();
+		session.close();
 		return result;
 	}
 	@Override
@@ -35,8 +39,9 @@ public class DBServiceHibernateImpl implements DBService {
 		Session session = mysqlFactory.openSession();
 		session.beginTransaction();
 		session.save(entity);
-		session.getTransaction().commit();
+		session.getTransaction().commit();	
 		if (entity.getId() != 0) cache.put(new CacheEntry<>(entity.getId(),entity));
+		session.close();
 	}
 	@Override
 	public void close() {

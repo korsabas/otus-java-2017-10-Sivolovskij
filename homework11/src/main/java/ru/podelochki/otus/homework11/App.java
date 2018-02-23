@@ -49,7 +49,7 @@ public class App
     private static void createTimer() throws InterruptedException {
 
         Timer timer = new Timer();
-        timer.schedule(createDataManipulationTask(), 0, 1000);
+        timer.schedule(createDataUsageTask(), 0, 1000);
 
         Thread.sleep(5000);
         timer.cancel();
@@ -58,7 +58,7 @@ public class App
         dbServiceHibernate.printCacheInfo();
     }
 
-    private static TimerTask createDataManipulationTask() {
+    private static TimerTask createDataUsageTask() {
         return new TimerTask() {
             @Override
             public void run() {

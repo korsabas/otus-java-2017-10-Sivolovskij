@@ -3,6 +3,8 @@ package ru.podelochki.otus.homework11;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import ru.podelochki.otus.homework11.models.AddressDataSet;
 import ru.podelochki.otus.homework11.models.PhoneDataSet;
@@ -20,22 +22,14 @@ public class App
     private static AddressDataSet address;
     private static PhoneDataSet phone1;
     private static PhoneDataSet phone2;
+    private static DBService dbServiceHibernate;
     public static void main( String[] args ) throws Exception
     {
     	prepareData();
-    	DBService dbServiceHibernate = new DBServiceHibernateImpl();
-        dbServiceHibernate.save(user);
+    	dbServiceHibernate = new DBServiceHibernateImpl();
 
-        UsersDataSet userFromDb = dbServiceHibernate.load(user.getId(), UsersDataSet.class);
-        System.out.println(userFromDb);
-        userFromDb = dbServiceHibernate.load(user.getId(), UsersDataSet.class);
-        System.out.println(userFromDb);
-        System.gc();
-        Thread.sleep(1000);
-        userFromDb = dbServiceHibernate.load(user.getId(), UsersDataSet.class);
-        System.out.println(userFromDb);
-        dbServiceHibernate.close();
-        dbServiceHibernate.printCacheInfo();
+        createTimer();
+
     }
     private static void prepareData() {
         user = new UsersDataSet();
@@ -51,5 +45,42 @@ public class App
         phone2.setUser(user);
         user.setAddress(address);
         user.setPhones(new ArrayList<>(Arrays.asList(phone1, phone2)));
+    }
+    private static void createTimer() throws InterruptedException {
+
+        Timer timer = new Timer();
+        timer.schedule(createDataManipulationTask(), 0, 1000);
+
+        Thread.sleep(5000);
+        timer.cancel();
+
+        dbServiceHibernate.close();
+        dbServiceHibernate.printCacheInfo();
+    }
+
+    private static TimerTask createDataManipulationTask() {
+        return new TimerTask() {
+            @Override
+            public void run() {
+                try {
+                	performDataUsage();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+    }
+
+    private static void performDataUsage() throws InterruptedException {
+        dbServiceHibernate.save(user);
+
+        UsersDataSet userLoaded = dbServiceHibernate.load(user.getId(), UsersDataSet.class);
+        System.out.println(userLoaded);
+        userLoaded = dbServiceHibernate.load(user.getId(), UsersDataSet.class);
+        System.out.println(userLoaded);
+        System.gc();
+        Thread.sleep(1000);
+        userLoaded = dbServiceHibernate.load(user.getId(), UsersDataSet.class);
+        System.out.println(userLoaded);
     }
 }

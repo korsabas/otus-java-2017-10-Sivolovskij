@@ -42,6 +42,7 @@ public class App
         server.addBean(loginService);
         ConstraintSecurityHandler security = new ConstraintSecurityHandler();
         
+        TemplateProcessor tp = new TemplateProcessor();
 
         Constraint constraint = new Constraint();
         constraint.setName("auth");
@@ -60,9 +61,8 @@ public class App
     	ctx.setContextPath("/");
     	ctx.setSecurityHandler(security);
 
-    	
         ctx.addServlet(Autorization.class, "/login");
-        ctx.addServlet(new ServletHolder(new CacheServlet(dbServiceHibernate)), "/");
+        ctx.addServlet(new ServletHolder(new CacheServlet(dbServiceHibernate, tp.getCfg())), "/");
 
 
         

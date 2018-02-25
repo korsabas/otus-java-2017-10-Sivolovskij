@@ -14,7 +14,7 @@ import ru.podelochki.otus.homework11.models.UsersDataSet;
 
 public class DBServiceHibernateImpl implements DBService {
 	private final SessionFactory mysqlFactory;
-	private final Cache<Long, DataSet> cache = new CacheImpl<>();
+	private final Cache<Long, DataSet> cache = new CacheImpl<>(5);
 	public DBServiceHibernateImpl() {
 		mysqlFactory = new Configuration().configure("hibernate.cfg.xml").addAnnotatedClass(UsersDataSet.class).addAnnotatedClass(PhoneDataSet.class)
 				.addAnnotatedClass(AddressDataSet.class).buildSessionFactory();
@@ -32,6 +32,7 @@ public class DBServiceHibernateImpl implements DBService {
 		T result = session.load(clazz, id);
 		session.getTransaction().commit();
 		session.close();
+		if (result != null) cache.put(new CacheEntry<>(result.getId(),result));
 		return result;
 	}
 	@Override

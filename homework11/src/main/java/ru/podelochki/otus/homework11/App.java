@@ -49,7 +49,7 @@ public class App
     private static void createTimer() throws InterruptedException {
 
         Timer timer = new Timer();
-        timer.schedule(createDataUsageTask(), 0, 1000);
+        timer.schedule(createDataUsageTask(), 100, 100);
 
         Thread.sleep(5000);
         timer.cancel();
@@ -72,6 +72,8 @@ public class App
     }
 
     private static void performDataUsage() throws InterruptedException {
+    	user.setAge(user.getAge() + 1);
+    	user.setName(user.getName() + 1);
         dbServiceHibernate.save(user);
 
         UsersDataSet userLoaded = dbServiceHibernate.load(user.getId(), UsersDataSet.class);
@@ -79,8 +81,6 @@ public class App
         userLoaded = dbServiceHibernate.load(user.getId(), UsersDataSet.class);
         System.out.println(userLoaded);
         System.gc();
-        Thread.sleep(1000);
-        userLoaded = dbServiceHibernate.load(user.getId(), UsersDataSet.class);
-        System.out.println(userLoaded);
+        Thread.sleep(500);
     }
 }

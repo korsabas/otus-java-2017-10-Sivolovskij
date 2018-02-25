@@ -1,5 +1,7 @@
 package ru.podelochki.otus.homework11.cache;
 
+import java.util.Objects;
+
 public class CacheEntry<K,V> {
     private final K key;
     private final V value;
@@ -16,4 +18,14 @@ public class CacheEntry<K,V> {
     public V getValue() {
         return value;
     }
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof CacheEntry) {
+			return Objects.equals(this.key, ((CacheEntry) obj).key);
+		} else {
+			return super.equals(obj);
+		}
+	}
+
 }

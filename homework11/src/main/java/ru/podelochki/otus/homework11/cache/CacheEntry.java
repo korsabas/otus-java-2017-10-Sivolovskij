@@ -19,13 +19,21 @@ public class CacheEntry<K,V> {
         return value;
     }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (obj instanceof CacheEntry) {
-			return Objects.equals(this.key, ((CacheEntry) obj).key);
-		} else {
-			return super.equals(obj);
-		}
-	}
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof CacheEntry)) return false;
+
+        CacheEntry<?, ?> element = (CacheEntry<?, ?>) o;
+
+        if (getKey() != null ? !getKey().equals(element.getKey()) : element.getKey() != null) return false;
+        return getValue() != null ? getValue().equals(element.getValue()) : element.getValue() == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = getKey() != null ? getKey().hashCode() : 0;
+        result = 31 * result + (getValue() != null ? getValue().hashCode() : 0);
+        return result;
+    }
 
 }

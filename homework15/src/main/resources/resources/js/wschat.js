@@ -2,8 +2,8 @@ var ws;
 document.getElementById("connect").style.backgroundColor='red';
 var isconnected;
 var receiver;
-
-var chatarea = document.getElementById("chatarea")
+var context = document.getElementById("context").value;
+var chatarea = document.getElementById("chatarea");
 
 var newline = '\n';
 
@@ -21,7 +21,7 @@ function doConnection() {
 }
 init = function () {
 
-    ws = new WebSocket("ws://" + window.location.hostname + ":8080/homework15/messaging");
+    ws = new WebSocket("ws://" + window.location.hostname + ":8080" + context +"/messaging");
 	
     ws.onopen = function (event) {
 		console.log("Connected");

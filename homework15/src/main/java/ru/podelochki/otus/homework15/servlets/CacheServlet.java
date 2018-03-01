@@ -43,7 +43,7 @@ public class CacheServlet extends HttpServlet {
     	response.setContentType("text/html;charset=utf-8");
         response.setStatus(HttpServletResponse.SC_OK);        
         Map<String, Object> root = new HashMap<>();
-        root.put("result", new Response("1","1","1"));
+        root.put("context", this.getServletContext().getContextPath());
         Template temp = processor.getCfg().getTemplate("/web/cache.html");
         BufferedWriter out = new BufferedWriter(new OutputStreamWriter(response.getOutputStream()));
         try {

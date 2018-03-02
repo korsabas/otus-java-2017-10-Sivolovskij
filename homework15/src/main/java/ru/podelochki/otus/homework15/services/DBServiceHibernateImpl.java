@@ -39,7 +39,12 @@ public class DBServiceHibernateImpl implements DBService {
 		Root<AppUser> from = criteriaQuery.from(AppUser.class);
 		criteriaQuery.where(cb.equal(from.get("username"), username));
 		Query myQuery = em.createQuery(criteriaQuery);
-		AppUser user = (AppUser) myQuery.getSingleResult();
+		AppUser user = null;
+		try {	
+			user = (AppUser) myQuery.getSingleResult();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		em.close();
 		return user;
 	}

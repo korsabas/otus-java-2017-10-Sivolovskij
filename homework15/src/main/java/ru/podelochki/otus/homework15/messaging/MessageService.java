@@ -15,14 +15,10 @@ import ru.podelochki.otus.homework15.services.ServiceMessageHandler;
 public class MessageService {
 	private final Map<String, ServiceMessageHandler> messageHandlers;
 	private final Map<String, Queue<ServiceMessage>> messageQueues;
-	private final Queue<ServiceMessage> requestMessageQueue;
-	private final Queue<ServiceMessage> responseMessageQueue;
 	
 	public MessageService() {
 		messageHandlers = new ConcurrentHashMap<>();
 		messageQueues = new ConcurrentHashMap<>();
-		requestMessageQueue = new ConcurrentLinkedQueue<>();
-		responseMessageQueue = new ConcurrentLinkedQueue<>();
 	}
 	
 	public void registerMessageHandler(String name, ServiceMessageHandler handler) {

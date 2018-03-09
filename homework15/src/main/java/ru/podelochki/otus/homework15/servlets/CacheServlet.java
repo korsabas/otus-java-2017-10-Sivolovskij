@@ -55,44 +55,4 @@ public class CacheServlet extends HttpServlet {
         
         out.close();
     }
-    public class Response {
-    	private String totalValue;
-    	private String hitValue;
-    	private String missValue;
-    	
-    	public Response() {
-    		
-    	}
-    	
-    	public Response(String totalValue, String hitValue, String missValue) {
-    		this.totalValue = totalValue;
-    		this.hitValue = hitValue;
-    		this.missValue = missValue;
-    	}
-
-		public String getTotalValue() {
-			return totalValue;
-		}
-
-		public void setTotalValue(String totalValue) {
-			this.totalValue = totalValue;
-		}
-
-		public String getHitValue() {
-			return hitValue;
-		}
-
-		public void setHitValue(String hitValue) {
-			this.hitValue = hitValue;
-		}
-
-		public String getMissValue() {
-			return missValue;
-		}
-
-		public void setMissValue(String missValue) {
-			this.missValue = missValue;
-		}
-    	
-    }
 }

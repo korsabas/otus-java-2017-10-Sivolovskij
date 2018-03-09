@@ -96,5 +96,8 @@ public class ChatMessage {
 		this.createDate = createDate;
 	}
 	
+	public PlainChatMessage getPlainChatMessage() {
+		return new PlainChatMessage(id, sender.getUsername(), receiver.getUsername(), messageText, status, createDate);
+	}
 	
 }

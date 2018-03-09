@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import com.google.gson.Gson;
 
 import ru.podelochki.otus.homework15.models.ChatMessage;
+import ru.podelochki.otus.homework15.models.PlainChatMessage;
 import ru.podelochki.otus.homework15.services.DBService;
 import ru.podelochki.otus.homework15.services.ServiceMessageHandler;
 
@@ -54,12 +55,18 @@ public class DBMessageHandler implements Runnable, ServiceMessageHandler{
 		DBMessage dMessage = gson.fromJson(message.getContent(), DBMessage.class);
 		
 		if (dMessage.getType().equals("save")) {
-			ChatMessage cMessage = dMessage.getMessage();
+			PlainChatMessage pMessage = dMessage.getMessage();
+			ChatMessage cMessage = pMessage.getChatMessage();
+			cMessage.setSender(dbService.getUserByUsername(pMessage.getSender()));
+			cMessage.setReceiver(dbService.getUserByUsername(pMessage.getReceiver()));
 			dbService.saveMessage(cMessage);
 			return null;
 		}
 		if (dMessage.getType().equals("refresh")) {
-			ChatMessage cMessage = dMessage.getMessage();
+			PlainChatMessage pMessage = dMessage.getMessage();
+			ChatMessage cMessage = pMessage.getChatMessage();
+			cMessage.setSender(dbService.getUserByUsername(pMessage.getSender()));
+			cMessage.setReceiver(dbService.getUserByUsername(pMessage.getReceiver()));
 			List<ChatMessage> chatMessagesdbService = dbService.getUnreadedMessagesForUser(cMessage.getReceiver(), cMessage.getSender());
 			for (ChatMessage chatMessage: chatMessagesdbService) {
 				ServiceMessage tmpMessage = new ServiceMessage();
@@ -73,7 +80,10 @@ public class DBMessageHandler implements Runnable, ServiceMessageHandler{
 			return null;
 		}
 		if (dMessage.getType().equals("sent")) {
-			ChatMessage cMessage = dMessage.getMessage();
+			PlainChatMessage pMessage = dMessage.getMessage();
+			ChatMessage cMessage = pMessage.getChatMessage();
+			cMessage.setSender(dbService.getUserByUsername(pMessage.getSender()));
+			cMessage.setReceiver(dbService.getUserByUsername(pMessage.getReceiver()));
 			dbService.updateMessage(cMessage);
 			return null;
 		}

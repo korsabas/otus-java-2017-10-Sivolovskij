@@ -24,6 +24,7 @@ import ru.podelochki.otus.homework15.messaging.WSMessage;
 import ru.podelochki.otus.homework15.models.AppUser;
 import ru.podelochki.otus.homework15.models.ChatMessage;
 import ru.podelochki.otus.homework15.models.Message;
+import ru.podelochki.otus.homework15.models.PlainChatMessage;
 
 @Service
 public class WebSocketMessageHandler implements Runnable, ServiceMessageHandler{
@@ -33,11 +34,10 @@ public class WebSocketMessageHandler implements Runnable, ServiceMessageHandler{
 	private final MessageService messageService;
 	private final Thread taskThread;
 	private final Gson gson = new Gson();
-	private final DBService dbService;
 	
 	@Autowired
-	public WebSocketMessageHandler(MessageService messageService, DBService dbService) {
-		this.dbService = dbService;
+	public WebSocketMessageHandler(MessageService messageService) {
+
 		peers = new ConcurrentHashMap<>();
 		this.messageService = messageService;
 		wsMessages = new ConcurrentLinkedQueue<>();
@@ -89,10 +89,10 @@ public class WebSocketMessageHandler implements Runnable, ServiceMessageHandler{
 		ServiceMessage sMessage = new ServiceMessage();
 		sMessage.setSender(NAME);
 		sMessage.setReceiver("DBMessageHandler");
-		ChatMessage cMessage = new ChatMessage();
+		PlainChatMessage cMessage = new PlainChatMessage();
 		
-		AppUser mReciever = dbService.getUserByUsername(message.getReceiver());
-		AppUser mSender = dbService.getUserByUsername(message.getSender());
+		String mReciever = message.getReceiver();
+		String mSender = message.getSender();
 		
 		
 		
@@ -114,7 +114,7 @@ public class WebSocketMessageHandler implements Runnable, ServiceMessageHandler{
 		sMessage = new ServiceMessage();
 		sMessage.setSender(NAME);
 		sMessage.setReceiver("DBMessageHandler");
-		cMessage = new ChatMessage();
+		cMessage = new PlainChatMessage();
 		cMessage.setSender(mReciever);
 		cMessage.setReceiver(mSender);
 		sMessage.setContent(gson.toJson(new DBMessage("refresh", cMessage)));
@@ -126,7 +126,7 @@ public class WebSocketMessageHandler implements Runnable, ServiceMessageHandler{
 		ServiceMessage sMessage = new ServiceMessage();
 		sMessage.setSender(NAME);
 		sMessage.setReceiver("DBMessageHandler");
-		ChatMessage cMessage = new ChatMessage();
+		PlainChatMessage cMessage = new PlainChatMessage();
 		cMessage.setId(message.getId());
 		sMessage.setContent(gson.toJson(new DBMessage("sent", cMessage)));
 		messageService.putMessage(sMessage);

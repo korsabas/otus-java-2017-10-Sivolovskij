@@ -85,5 +85,16 @@ public class DBServiceHibernateImpl implements DBService {
 		em.close();
 		
 	}
+
+	@Override
+	public void updateNode(AppUser user) {
+		EntityManager em = getEntityManager();
+		em.getTransaction().begin();
+		String sql = String.format("update users set active_node = '%s' where user_id=%s", user.getActiveNode(), user.getId());
+		em.createNativeQuery(sql).executeUpdate();
+		em.getTransaction().commit();
+		//em.flush();
+		em.close();	
+	}
 	
 }

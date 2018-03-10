@@ -14,4 +14,5 @@ public interface DBService {
 	
 	void saveMessage(ChatMessage message);
 	void updateMessage(ChatMessage cMessage);
+	void updateNode(AppUser user);
 }

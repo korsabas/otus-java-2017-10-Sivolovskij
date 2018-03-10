@@ -18,6 +18,9 @@ public class AppUser {
 	
 	@Column(name="password")
 	private String password;
+	
+	@Column(name="active_node")
+	private String activeNode;
 
 	public AppUser() {
 		super();
@@ -53,6 +56,14 @@ public class AppUser {
 
 	public void setUsername(String username) {
 		this.username = username;
+	}
+
+	public String getActiveNode() {
+		return activeNode;
+	}
+
+	public void setActiveNode(String activeNode) {
+		this.activeNode = activeNode;
 	}
 	
 	

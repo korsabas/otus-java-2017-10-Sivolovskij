@@ -109,7 +109,7 @@ public class WebSocketMessageHandler implements Runnable, ServiceMessageHandler{
 		cMessage.setMessageText(message.getText());		
 		sMessage.setContent(gson.toJson(new DBMessage("save", cMessage)));
 		messageService.putMessage(sMessage);
-		/*
+		
 		sMessage = new ServiceMessage();
 		sMessage.setSender(serviceName);
 		sMessage.setReceiver("DBMessageHandler");
@@ -118,7 +118,7 @@ public class WebSocketMessageHandler implements Runnable, ServiceMessageHandler{
 		cMessage.setReceiver(mSender);
 		sMessage.setContent(gson.toJson(new DBMessage("refresh", cMessage)));
 		messageService.putMessage(sMessage);
-		*/
+		
 
 	}
 	

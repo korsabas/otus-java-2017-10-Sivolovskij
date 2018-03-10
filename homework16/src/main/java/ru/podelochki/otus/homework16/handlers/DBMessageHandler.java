@@ -17,6 +17,7 @@ import ru.podelochki.otus.homework16.messages.RegisterMessage;
 import ru.podelochki.otus.homework16.messages.ServiceMessage;
 import ru.podelochki.otus.homework16.messages.SocketMessage;
 import ru.podelochki.otus.homework16.messages.WSMessage;
+import ru.podelochki.otus.homework16.models.AppUser;
 import ru.podelochki.otus.homework16.models.ChatMessage;
 import ru.podelochki.otus.homework16.services.ClientMessageService;
 import ru.podelochki.otus.homework16.services.DBService;
@@ -93,13 +94,14 @@ public class DBMessageHandler implements ServiceMessageHandler{
 		if (dMessage.getType().equals("refresh")) {
 			PlainChatMessage pMessage = dMessage.getMessage();
 			ChatMessage cMessage = pMessage.getChatMessage();
-			cMessage.setSender(dbService.getUserByUsername(pMessage.getSender()));
+			AppUser tmpUser = dbService.getUserByUsername(pMessage.getSender()); 
+			cMessage.setSender(tmpUser);
 			cMessage.setReceiver(dbService.getUserByUsername(pMessage.getReceiver()));
 			List<ChatMessage> chatMessagesdbService = dbService.getUnreadedMessagesForUser(cMessage.getReceiver(), cMessage.getSender());
 			for (ChatMessage chatMessage: chatMessagesdbService) {
 				ServiceMessage tmpMessage = new ServiceMessage();
 				tmpMessage.setSender(message.getReceiver());
-				tmpMessage.setReceiver(message.getSender());
+				tmpMessage.setReceiver(tmpUser.getActiveNode());
 				WSMessage textMessage = new WSMessage(chatMessage.getSender().getUsername(), chatMessage.getReceiver().getUsername(), chatMessage.getMessageText());
 				textMessage.setId(chatMessage.getId());
 				tmpMessage.setContent(gson.toJson(textMessage));
@@ -110,8 +112,8 @@ public class DBMessageHandler implements ServiceMessageHandler{
 		if (dMessage.getType().equals("sent")) {
 			PlainChatMessage pMessage = dMessage.getMessage();
 			ChatMessage cMessage = pMessage.getChatMessage();
-			cMessage.setSender(dbService.getUserByUsername(pMessage.getSender()));
-			cMessage.setReceiver(dbService.getUserByUsername(pMessage.getReceiver()));
+			//cMessage.setSender(dbService.getUserByUsername(pMessage.getSender()));
+			//cMessage.setReceiver(dbService.getUserByUsername(pMessage.getReceiver()));
 			dbService.updateMessage(cMessage);
 			return null;
 		}

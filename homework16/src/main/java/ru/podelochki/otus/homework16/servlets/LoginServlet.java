@@ -18,6 +18,7 @@ import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 import ru.podelochki.otus.homework16.models.AppUser;
 import ru.podelochki.otus.homework16.services.DBService;
+import ru.podelochki.otus.homework16.services.ServiceMessageHandler;
 import ru.podelochki.otus.homework16.services.TemplateProcessor;
 
 @WebServlet("/login")
@@ -29,8 +30,8 @@ public class LoginServlet extends HttpServlet {
 	@Autowired
 	private TemplateProcessor processor;
 	
-	//@Autowired
-	//private ActiveUsers activeUsers;
+	@Autowired
+	private ServiceMessageHandler webSocketMessageHandler;
 	
 	public LoginServlet() {
 		SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
@@ -61,6 +62,9 @@ public class LoginServlet extends HttpServlet {
     }
     private boolean isCorrectCredentials(HttpServletRequest request) {
     	AppUser user = dbService.getUserByUsername(request.getParameter("login"));
+    	String currentNode = webSocketMessageHandler.getRegisterMessage().getName();
+    	user.setActiveNode(currentNode);
+    	dbService.updateNode(user);
     	if (user != null) {
     		if (user.getPassword().equals(request.getParameter("password"))) {
     			//request.setAttribute("username", user.getUsername());

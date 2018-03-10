@@ -82,8 +82,8 @@ public class DBMessageHandler implements Runnable, ServiceMessageHandler{
 		if (dMessage.getType().equals("sent")) {
 			PlainChatMessage pMessage = dMessage.getMessage();
 			ChatMessage cMessage = pMessage.getChatMessage();
-			cMessage.setSender(dbService.getUserByUsername(pMessage.getSender()));
-			cMessage.setReceiver(dbService.getUserByUsername(pMessage.getReceiver()));
+			//cMessage.setSender(dbService.getUserByUsername(pMessage.getSender()));
+			//cMessage.setReceiver(dbService.getUserByUsername(pMessage.getReceiver()));
 			dbService.updateMessage(cMessage);
 			return null;
 		}

@@ -8,20 +8,22 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import ru.podelochki.otus.homework16.config.DBServiceConfig;
 import ru.podelochki.otus.homework16.config.MessageServiceConfig;
 import ru.podelochki.otus.homework16.config.WebServiceConfig;
+import ru.podelochki.otus.homework16.handlers.ServiceMessageHandler;
+import ru.podelochki.otus.homework16.services.ClientSocketService;
 import ru.podelochki.otus.homework16.services.ServerSocketService;
 
 /**
  * Hello world!
  *
  */
-public class App2 
+public class DBProcess 
 {
 	private static final String MODE = "-m";
     public static void main( String[] args ) throws IOException
     {
     	if (args.length == 0) {
-    		initializeMessageService();
-        }
+    		initializeDatabaseService();
+        } else
     	
         if (args.length != 2 && !args[0].equals(MODE)) {
         	System.exit(1);
@@ -38,6 +40,13 @@ public class App2
     
     private static void initializeDatabaseService() {
     	ApplicationContext ctx = new AnnotationConfigApplicationContext(DBServiceConfig.class);
+    	ClientSocketService service = ctx.getBean(ClientSocketService.class);
+    	try {
+			service.connect("127.0.0.1", 8181);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
     private static void initializeWebService() {
     	ApplicationContext ctx = new AnnotationConfigApplicationContext(WebServiceConfig.class);

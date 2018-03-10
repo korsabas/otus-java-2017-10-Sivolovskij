@@ -4,20 +4,19 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import ru.podelochki.otus.homework16.handlers.DBMessageHandler;
-import ru.podelochki.otus.homework16.handlers.ServiceMessageHandler;
-import ru.podelochki.otus.homework16.services.ClientSocketService;
+import ru.podelochki.otus.homework16.services.ClientMessageService;
 import ru.podelochki.otus.homework16.services.DBService;
 import ru.podelochki.otus.homework16.services.DBServiceHibernateImpl;
-import ru.podelochki.otus.homework16.services.SimpleClientSocketService;
-import ru.podelochki.otus.homework16.services.SocketMessageHandler;
+import ru.podelochki.otus.homework16.services.ServiceMessageHandler;
+import ru.podelochki.otus.homework16.services.SocketMessageService;
 
 @Configuration
 public class DBServiceConfig {
 	
 	
 	@Bean
-	public SocketMessageHandler socketMessageHandler(DBService dbService) {
-		return new DBMessageHandler(dbService);
+	public ServiceMessageHandler serviceMessageHandler(DBService dbService, ClientMessageService clientMessageService) {
+		return new DBMessageHandler(dbService, clientMessageService);
 	}
 	
 	@Bean
@@ -26,8 +25,8 @@ public class DBServiceConfig {
 	}
 	
 	@Bean
-	public ClientSocketService clientSocketService(SocketMessageHandler handler) {
-		return new SimpleClientSocketService(handler);
+	public ClientMessageService clientMessageService() {
+		return new SocketMessageService("localhost",8181);
 	}
 
 }

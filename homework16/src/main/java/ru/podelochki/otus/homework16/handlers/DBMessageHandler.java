@@ -3,7 +3,8 @@ package ru.podelochki.otus.homework16.handlers;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-
+import java.util.List;
+import java.util.Queue;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -11,20 +12,26 @@ import org.springframework.stereotype.Service;
 import com.google.gson.Gson;
 
 import ru.podelochki.otus.homework16.messages.DBMessage;
+import ru.podelochki.otus.homework16.messages.PlainChatMessage;
 import ru.podelochki.otus.homework16.messages.RegisterMessage;
 import ru.podelochki.otus.homework16.messages.ServiceMessage;
 import ru.podelochki.otus.homework16.messages.SocketMessage;
+import ru.podelochki.otus.homework16.messages.WSMessage;
+import ru.podelochki.otus.homework16.models.ChatMessage;
+import ru.podelochki.otus.homework16.services.ClientMessageService;
 import ru.podelochki.otus.homework16.services.DBService;
+import ru.podelochki.otus.homework16.services.ServiceMessageHandler;
 import ru.podelochki.otus.homework16.services.SocketMessageHandler;
 import ru.podelochki.otus.homework16.services.SocketSession;
 
 
 
-public class DBMessageHandler implements SocketMessageHandler{
+public class DBMessageHandler implements ServiceMessageHandler{
 	private String serviceName = "DBMessageHandler";
 	private final String GROUP_NAME = "DBMessageHandler";
 	private final DBService dbService;
 	private final Gson gson = new Gson();
+	private ClientMessageService messageService;
 
 	private boolean registered;
 
@@ -32,106 +39,96 @@ public class DBMessageHandler implements SocketMessageHandler{
 	InputStreamReader in;
 	OutputStreamWriter out;
 
-	public DBMessageHandler(DBService dbService) {
+	public DBMessageHandler(DBService dbService, ClientMessageService messageService) {
 		this.dbService = dbService;
+		this.messageService = messageService;
+		this.messageService.addReceiver(this);
+		new MessageReader();
 	}
 
-
-	
-
-	
-	public void getMessage() throws IOException {
-		
-		ServiceMessage message = new ServiceMessage();
-		message.setSender(serviceName);
-		message.setContent("hello");
-		String sMessage = gson.toJson(message);
-		String outString = String.format("%04d", sMessage.length());
-		outString += sMessage;
-		System.out.println(outString);
-		out.write(outString);
-		out.flush();
-		//out.close();
-		//ServiceMessage serviceMessage = readMessage(in);
-
-		
-		
-	}
-
-
-	private ServiceMessage readMessage(InputStreamReader in) throws IOException {
-		in.read(sizeMarker);
-		int bytesToRead = Integer.parseInt(new String(sizeMarker));
-		char[] charMessage = new char[bytesToRead];
-		in.read(charMessage);
-		String stringMessage = new String(charMessage);
-		return gson.fromJson(stringMessage, ServiceMessage.class);
-	}
-
-
-	@Override
-	public void onMessage(SocketSession session, String message) {
-		SocketMessage socketMessage = gson.fromJson(message, SocketMessage.class);
-		if (socketMessage.getAction().equals(SocketMessage.REGISTER)) {
-			RegisterMessage rMessage = gson.fromJson(socketMessage.getPayload(), RegisterMessage.class);
-			serviceName = rMessage.getName();
-			registered = true;
-			System.out.println("REgistered:" + serviceName);
-		} else if (socketMessage.getAction().equals(SocketMessage.RECEIVE_MESSAGE)){
-			if (socketMessage.getPayload() != null) {
-				System.out.println("Processing queue");
-			} else {
-				System.out.println("Emty queue");
-			}
-			
-		}
-	}
-	
-	private ServiceMessage getServiceMessage(SocketMessage socketMessage) {
-		return gson.fromJson(socketMessage.getPayload(), ServiceMessage.class);
-	}
-
-	@Override
-	public void onCreateSession(SocketSession session) {
-		new MessageReader(session);
-		RegisterMessage rMessage = new RegisterMessage(serviceName, GROUP_NAME);
-		SocketMessage socketMessage = new SocketMessage(SocketMessage.REGISTER);
-		socketMessage.setPayload(gson.toJson(rMessage));
-		try {
-			session.sendMessage(gson.toJson(socketMessage));
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	
 	private class MessageReader implements Runnable {
-		private SocketSession readerSession;
-		private MessageReader(SocketSession session) {
-			this.readerSession = session;
+		
+		private MessageReader() {
 			Thread thread = new Thread(this, "MessageReader");
 			thread.start();
 		}
+		
 		@Override
 		public void run() {
-			while (readerSession.getSocket().isConnected()) {
-				if (registered) {
-					SocketMessage socketMessage = new SocketMessage(SocketMessage.RECEIVE_MESSAGE);
-					try {
-						readerSession.sendMessage(gson.toJson(socketMessage));
-					} catch (Exception e) {
-						registered = false;
-					}
+			while (true) {
+			Queue<ServiceMessage> queue = messageService.getMessageQueue(serviceName);
+			if (queue != null) {
+			System.out.println("Received non empty queue");	
+			while(!queue.isEmpty()) {
+				ServiceMessage message = queue.poll();
+				ServiceMessage response = executeMessage(message);
+				if (response != null) {
+					messageService.putMessage(response);
 				}
-				try {
-					Thread.currentThread().sleep(2000);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+			}
+			}
+			try {
+				Thread.currentThread().sleep(5000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			}
 			
 		}
+		
+	}
+	
+	private ServiceMessage executeMessage(ServiceMessage message) {
+		DBMessage dMessage = gson.fromJson(message.getContent(), DBMessage.class);
+		
+		if (dMessage.getType().equals("save")) {
+			PlainChatMessage pMessage = dMessage.getMessage();
+			ChatMessage cMessage = pMessage.getChatMessage();
+			cMessage.setSender(dbService.getUserByUsername(pMessage.getSender()));
+			cMessage.setReceiver(dbService.getUserByUsername(pMessage.getReceiver()));
+			dbService.saveMessage(cMessage);
+			return null;
+		}
+		if (dMessage.getType().equals("refresh")) {
+			PlainChatMessage pMessage = dMessage.getMessage();
+			ChatMessage cMessage = pMessage.getChatMessage();
+			cMessage.setSender(dbService.getUserByUsername(pMessage.getSender()));
+			cMessage.setReceiver(dbService.getUserByUsername(pMessage.getReceiver()));
+			List<ChatMessage> chatMessagesdbService = dbService.getUnreadedMessagesForUser(cMessage.getReceiver(), cMessage.getSender());
+			for (ChatMessage chatMessage: chatMessagesdbService) {
+				ServiceMessage tmpMessage = new ServiceMessage();
+				tmpMessage.setSender(message.getReceiver());
+				tmpMessage.setReceiver(message.getSender());
+				WSMessage textMessage = new WSMessage(chatMessage.getSender().getUsername(), chatMessage.getReceiver().getUsername(), chatMessage.getMessageText());
+				textMessage.setId(chatMessage.getId());
+				tmpMessage.setContent(gson.toJson(textMessage));
+				messageService.putMessage(tmpMessage);
+			}
+			return null;
+		}
+		if (dMessage.getType().equals("sent")) {
+			PlainChatMessage pMessage = dMessage.getMessage();
+			ChatMessage cMessage = pMessage.getChatMessage();
+			cMessage.setSender(dbService.getUserByUsername(pMessage.getSender()));
+			cMessage.setReceiver(dbService.getUserByUsername(pMessage.getReceiver()));
+			dbService.updateMessage(cMessage);
+			return null;
+		}
+		
+		return null;
+	}
+
+	@Override
+	public RegisterMessage getRegisterMessage() {
+		// TODO Auto-generated method stub
+		return new RegisterMessage(serviceName, GROUP_NAME);
+	}
+
+
+	@Override
+	public void updateName(String name) {
+		this.serviceName = name;
 		
 	}
 	

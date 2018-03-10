@@ -14,6 +14,7 @@ import javax.persistence.criteria.Root;
 import org.springframework.stereotype.Service;
 
 import ru.podelochki.otus.homework16.models.AppUser;
+import ru.podelochki.otus.homework16.models.ChatMessage;
 
 @Service
 public class DBServiceHibernateImpl implements DBService {
@@ -46,7 +47,7 @@ public class DBServiceHibernateImpl implements DBService {
 		em.close();
 		return user;
 	}
-	/*
+	
 	@Override
 	public List<ChatMessage> getMessagesForUser(AppUser user) {
 		String sql = String.format("select * from messages where sender_id = %s or receiver_id = %s order by create_date asc", user.getId(), user.getId());
@@ -84,5 +85,5 @@ public class DBServiceHibernateImpl implements DBService {
 		em.close();
 		
 	}
-	*/
+	
 }

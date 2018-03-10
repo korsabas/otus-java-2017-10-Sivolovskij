@@ -45,7 +45,7 @@ public class WebSocketServlet {
     	if (tokens.length <2) {
     		mHandler.addWSMessage(new WSMessage((String)this.config.getUserProperties().get("username"), tokens[0], null));
     	} else {
-    		//mHandler.addWSMessage(new WSMessage((String)this.config.getUserProperties().get("username"), tokens[0], tokens[1]));
+    		mHandler.addWSMessage(new WSMessage((String)this.config.getUserProperties().get("username"), tokens[0], tokens[1]));
     	}
     }
 

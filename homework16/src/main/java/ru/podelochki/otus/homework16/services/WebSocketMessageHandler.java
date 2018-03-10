@@ -17,34 +17,30 @@ import org.springframework.stereotype.Service;
 
 import com.google.gson.Gson;
 
+import ru.podelochki.otus.homework16.messages.DBMessage;
 import ru.podelochki.otus.homework16.messages.PlainChatMessage;
 import ru.podelochki.otus.homework16.messages.RegisterMessage;
 import ru.podelochki.otus.homework16.messages.ServiceMessage;
-import ru.podelochki.otus.homework16.messages.SocketMessage;
 import ru.podelochki.otus.homework16.messages.WSMessage;
 
-
-
 @Service
-public class WebSocketMessageHandler implements SocketMessageHandler{
-	private String serviceName = "WSMessageHandler";
+public class WebSocketMessageHandler implements Runnable, ServiceMessageHandler{
+	public String serviceName = "WSMessageHandler";
 	private final Map<String, Session>  peers;
 	private final Queue<WSMessage> wsMessages;
-	//private final Thread taskThread;
+	private final ClientMessageService messageService;
+	private final Thread taskThread;
 	private final Gson gson = new Gson();
-	private boolean registered;
 	
+	//@Autowired
 	public WebSocketMessageHandler() {
-		ClientSocketService clientSocketService = new SimpleClientSocketService(this);
-		try {
-			clientSocketService.connect("localhost", 8181);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		peers = new ConcurrentHashMap<>();
-		wsMessages = new ConcurrentLinkedQueue<>();
 
+		peers = new ConcurrentHashMap<>();
+		this.messageService = new SocketMessageService("localhost",8181);
+		messageService.addReceiver(this);
+		wsMessages = new ConcurrentLinkedQueue<>();
+		taskThread = new Thread(this, serviceName);
+		taskThread.start();
 	}
 
 	public void addPeer(String name, Session session) {
@@ -53,64 +49,41 @@ public class WebSocketMessageHandler implements SocketMessageHandler{
 	public void removePeer(String name) {
 		peers.remove(name);
 	}
-
 	@Override
-	public void onMessage(SocketSession session, String message) {
-		SocketMessage socketMessage = gson.fromJson(message, SocketMessage.class);
-		if (socketMessage.getAction().equals(SocketMessage.REGISTER)) {
-			RegisterMessage rMessage = gson.fromJson(socketMessage.getPayload(), RegisterMessage.class);
-			serviceName = rMessage.getName();
-			registered = true;
-			System.out.println("REgistered:" + serviceName);
-		}
-		
-	}
-
-	@Override
-	public void onCreateSession(SocketSession session) {
-		new MessageReader(session);
-		RegisterMessage rMessage = new RegisterMessage(serviceName, null);
-		SocketMessage socketMessage = new SocketMessage(SocketMessage.REGISTER);
-		socketMessage.setPayload(gson.toJson(rMessage));
-		try {
-			session.sendMessage(gson.toJson(socketMessage));
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-	}
-	
-	private class MessageReader implements Runnable {
-		private SocketSession readerSession;
-		private MessageReader(SocketSession session) {
-			this.readerSession = session;
-			Thread thread = new Thread(this, "MessageReader");
-			thread.start();
-		}
-		@Override
-		public void run() {
-			while (readerSession.getSocket().isConnected()) {
-				if (registered) {
-					SocketMessage socketMessage = new SocketMessage(SocketMessage.RECEIVE_MESSAGE);
-					try {
-						readerSession.sendMessage(gson.toJson(socketMessage));
-					} catch (Exception e) {
-						registered = false;
-					}
-				}
+	public void run() {
+		while (true) {
+		Queue<ServiceMessage> queue = messageService.getMessageQueue(serviceName);
+		if (queue != null) {
+		while(!queue.isEmpty()) {
+			ServiceMessage message = queue.poll();
+			WSMessage wMessage = gson.fromJson(message.getContent(), WSMessage.class);
+			Session session = peers.get(wMessage.getReceiver());
+			if (session != null) {
 				try {
-					Thread.currentThread().sleep(2000);
-				} catch (InterruptedException e) {
+					//session.getBasicRemote().sendText(tokens[1]);
+					//session.getBasicRemote().sendText(wMessage.getText());
+					session.getBasicRemote().sendObject(wMessage);
+					updateSentMessages(wMessage);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (EncodeException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
-			
+		}
+		}
+		try {
+			Thread.currentThread().sleep(5000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		}
 		
 	}
-public void addWSMessage(WSMessage message) {
+	public void addWSMessage(WSMessage message) {
 		
 		ServiceMessage sMessage = new ServiceMessage();
 		sMessage.setSender(serviceName);
@@ -136,17 +109,40 @@ public void addWSMessage(WSMessage message) {
 		cMessage.setMessageText(message.getText());		
 		sMessage.setContent(gson.toJson(new DBMessage("save", cMessage)));
 		messageService.putMessage(sMessage);
-		
+		/*
 		sMessage = new ServiceMessage();
-		sMessage.setSender(NAME);
+		sMessage.setSender(serviceName);
 		sMessage.setReceiver("DBMessageHandler");
 		cMessage = new PlainChatMessage();
 		cMessage.setSender(mReciever);
 		cMessage.setReceiver(mSender);
 		sMessage.setContent(gson.toJson(new DBMessage("refresh", cMessage)));
 		messageService.putMessage(sMessage);
+		*/
 
 	}
+	
+	private void updateSentMessages(WSMessage message) {
+		ServiceMessage sMessage = new ServiceMessage();
+		sMessage.setSender(serviceName);
+		sMessage.setReceiver("DBMessageHandler");
+		PlainChatMessage cMessage = new PlainChatMessage();
+		cMessage.setId(message.getId());
+		sMessage.setContent(gson.toJson(new DBMessage("sent", cMessage)));
+		messageService.putMessage(sMessage);
+	}
+	private void refreshMessages(WSMessage message) {
+		
+	}
 
+	@Override
+	public RegisterMessage getRegisterMessage() {
+		return new RegisterMessage(serviceName, null);
+	}
+
+	@Override
+	public void updateName(String name) {
+		this.serviceName = name;
+	}
 	
 }

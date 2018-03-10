@@ -2,6 +2,8 @@ package ru.podelochki.otus.homework16.messages;
 
 import java.util.Date;
 
+import ru.podelochki.otus.homework16.models.ChatMessage;
+
 public class PlainChatMessage {
 	
 	private long id;

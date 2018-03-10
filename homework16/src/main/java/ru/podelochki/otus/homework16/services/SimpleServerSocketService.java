@@ -94,9 +94,11 @@ public class SimpleServerSocketService implements ServerSocketService{
     	}
 
 		@Override
-		public Socket getSocket() {
-			return clientSocket;
+		public String readMessage() throws IOException {
+			// TODO Auto-generated method stub
+			return null;
 		}
+
     }
 
 	

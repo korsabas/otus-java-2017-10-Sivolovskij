@@ -9,6 +9,9 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import ru.podelochki.otus.homework16.messages.PlainChatMessage;
+import ru.podelochki.otus.homework16.models.AppUser;
+
 @Entity
 @Table(name="messages")
 public class ChatMessage {
@@ -96,5 +99,8 @@ public class ChatMessage {
 		this.createDate = createDate;
 	}
 	
+	public PlainChatMessage getPlainChatMessage() {
+		return new PlainChatMessage(id, sender.getUsername(), receiver.getUsername(), messageText, status, createDate);
+	}
 	
 }

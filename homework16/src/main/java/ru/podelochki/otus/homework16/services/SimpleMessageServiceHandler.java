@@ -77,29 +77,48 @@ public class SimpleMessageServiceHandler implements SocketMessageHandler{
 		System.out.println("Getting MEssage Queue");
 		RegisterMessage registration = sessionMap.get(session);
 		if (registration.getGroup() != null) {
+			SocketMessage responseSocketMessage = new SocketMessage(SocketMessage.RESPONSE_MESSAGE);
 			ServiceMessage sMessage = mService.getMessageQueue(registration.getGroup()).poll();
 			if (sMessage != null) {
-				
-				SocketMessage responseSocketMessage = new SocketMessage(SocketMessage.RESPONSE_MESSAGE);
-				responseSocketMessage.setPayload(gson.toJson(sMessage));
+				Queue<ServiceMessage> tmpQueue = new ConcurrentLinkedQueue<>();
+				tmpQueue.offer(sMessage);
+				responseSocketMessage.setPayload(gson.toJson(tmpQueue));
 				try {
 					session.sendMessage(gson.toJson(responseSocketMessage));
+					System.out.println(registration.getGroup() + ": Queue offered");
 				} catch (IOException e) {
 					unregister(session);
 				}
 				
 			} else {
-				System.out.println("Queue empty");
+				try {
+					session.sendMessage(gson.toJson(responseSocketMessage));
+					System.out.println(registration.getGroup() + ": Queue empty");
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
 			}
 		} else {
 			Queue<ServiceMessage> tmpQueue = mService.getMessageQueue(registration.getName());
 			List<ServiceMessage> tmpList = new ArrayList<>();
+			SocketMessage responseSocketMessage = new SocketMessage(SocketMessage.RESPONSE_MESSAGE);
 			while (!tmpQueue.isEmpty()) {
 				tmpList.add(tmpQueue.poll());
 			}
 			if (tmpList.size() > 0) {
-				SocketMessage responseSocketMessage = new SocketMessage(SocketMessage.RESPONSE_MESSAGE);
+				responseSocketMessage = new SocketMessage(SocketMessage.RESPONSE_MESSAGE);
 				responseSocketMessage.setPayload(gson.toJson(tmpList));
+				System.out.println(registration.getName() + ": Queue" + tmpList.size());
+			} else {
+				System.out.println(registration.getName() + ": Queue empty");
+			}
+			try {
+				session.sendMessage(gson.toJson(responseSocketMessage));
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		}
 	}
@@ -110,12 +129,6 @@ public class SimpleMessageServiceHandler implements SocketMessageHandler{
 		Queue<SocketSession> queue = groups.get(registration.getGroup());
 		queue.remove(session);
 		mService.removeReceiver(registration.getName());
-	}
-
-	@Override
-	public void onCreateSession(SocketSession session) {
-		// TODO Auto-generated method stub
-		
 	}
 	
 }

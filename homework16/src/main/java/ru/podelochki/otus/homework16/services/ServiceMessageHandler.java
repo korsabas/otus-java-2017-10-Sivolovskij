@@ -4,4 +4,5 @@ import ru.podelochki.otus.homework16.messages.RegisterMessage;
 
 public interface ServiceMessageHandler {
 	RegisterMessage getRegisterMessage();
+	void updateName(String name);
 }

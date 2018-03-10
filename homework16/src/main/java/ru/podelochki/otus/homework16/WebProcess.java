@@ -18,7 +18,6 @@ import ru.podelochki.otus.homework16.config.DBServiceConfig;
 import ru.podelochki.otus.homework16.config.MessageServiceConfig;
 import ru.podelochki.otus.homework16.config.WebServiceConfig;
 import ru.podelochki.otus.homework16.handlers.DBMessageHandler;
-import ru.podelochki.otus.homework16.handlers.ServiceMessageHandler;
 import ru.podelochki.otus.homework16.services.ClientSocketService;
 import ru.podelochki.otus.homework16.services.DBService;
 import ru.podelochki.otus.homework16.services.DBServiceHibernateImpl;

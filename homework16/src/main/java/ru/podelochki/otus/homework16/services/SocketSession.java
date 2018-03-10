@@ -5,5 +5,5 @@ import java.net.Socket;
 
 public interface SocketSession {
 	void sendMessage(String message) throws IOException;
-	Socket getSocket();
+	String readMessage() throws IOException;
 }

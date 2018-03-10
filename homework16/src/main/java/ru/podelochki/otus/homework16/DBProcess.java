@@ -8,9 +8,8 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import ru.podelochki.otus.homework16.config.DBServiceConfig;
 import ru.podelochki.otus.homework16.config.MessageServiceConfig;
 import ru.podelochki.otus.homework16.config.WebServiceConfig;
-import ru.podelochki.otus.homework16.handlers.ServiceMessageHandler;
-import ru.podelochki.otus.homework16.services.ClientSocketService;
 import ru.podelochki.otus.homework16.services.ServerSocketService;
+import ru.podelochki.otus.homework16.services.ServiceMessageHandler;
 
 /**
  * Hello world!
@@ -40,13 +39,7 @@ public class DBProcess
     
     private static void initializeDatabaseService() {
     	ApplicationContext ctx = new AnnotationConfigApplicationContext(DBServiceConfig.class);
-    	ClientSocketService service = ctx.getBean(ClientSocketService.class);
-    	try {
-			service.connect("127.0.0.1", 8181);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+    	ServiceMessageHandler service = ctx.getBean(ServiceMessageHandler.class);
     }
     private static void initializeWebService() {
     	ApplicationContext ctx = new AnnotationConfigApplicationContext(WebServiceConfig.class);

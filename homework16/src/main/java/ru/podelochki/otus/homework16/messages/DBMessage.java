@@ -1,23 +1,22 @@
 package ru.podelochki.otus.homework16.messages;
 
-import ru.podelochki.otus.homework16.models.ChatMessage;
 
 public class DBMessage {
 	private String type;
-	private ChatMessage message;
+	private PlainChatMessage message;
 	public String getType() {
 		return type;
 	}
 	public void setType(String type) {
 		this.type = type;
 	}
-	public ChatMessage getMessage() {
+	public PlainChatMessage getMessage() {
 		return message;
 	}
-	public void setMessage(ChatMessage message) {
+	public void setMessage(PlainChatMessage message) {
 		this.message = message;
 	}
-	public DBMessage(String type, ChatMessage message) {
+	public DBMessage(String type, PlainChatMessage message) {
 		super();
 		this.type = type;
 		this.message = message;

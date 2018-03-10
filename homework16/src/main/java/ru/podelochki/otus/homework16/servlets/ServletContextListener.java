@@ -4,6 +4,9 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.annotation.WebListener;
 
 import org.springframework.web.context.ContextLoaderListener;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
+
+import ru.podelochki.otus.homework16.services.WebSocketMessageHandler;
 
 @WebListener
 public class ServletContextListener extends ContextLoaderListener {
@@ -11,7 +14,7 @@ public class ServletContextListener extends ContextLoaderListener {
     @Override
     public void contextInitialized(ServletContextEvent arg0) {
         super.contextInitialized(arg0);
-        System.out.println("---- initialize servlet context -----");
+        //SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(new WebSocketMessageHandler(host, port));
     }
 
     @Override

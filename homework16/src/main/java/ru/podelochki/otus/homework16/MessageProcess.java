@@ -40,7 +40,7 @@ public class MessageProcess
     	
     	String mode = null;
     	int mSPort = -1;
-    	String mSHost;
+    	String mSHost = null;
     	int webPort = -1;
     	if (args.length == 0) {
     		ProcessBuilder pb = new ProcessBuilder("java", "-jar", "homework16.jar", "-m", "messageService", "-h", "localhost", "-p", "8181");
@@ -78,7 +78,7 @@ public class MessageProcess
         if (mode.equals("dbservice")) {
         	initializeDatabaseService();
         } else if (mode.equals("webfront")) {
-        	initializeWebService(webPort);
+        	initializeWebService(mSHost, mSPort, webPort);
         }    
         }
         
@@ -94,13 +94,10 @@ public class MessageProcess
     private static void initializeDatabaseService() {
     	ApplicationContext ctx = new AnnotationConfigApplicationContext(DBServiceConfig.class);
     }
-    private static void initializeWebService(int serverPort) throws Exception {
-    	ApplicationContext ctx = new AnnotationConfigApplicationContext(WebServiceConfig.class);
-    	
-    	
+    private static void initializeWebService(String msHost, int msport, int serverPort) throws Exception {
+
     	Server server = new Server(serverPort);
     	ServletContextHandler servletCTX = new ServletContextHandler(ServletContextHandler.SESSIONS);
-    	DBService dbServiceHibernate = new DBServiceHibernateImpl();
     	TemplateProcessor tp = new TemplateProcessor();
     	servletCTX.addEventListener(new ServletContextListener());
     	servletCTX.addFilter(AutorizationFilter.class, "/*", EnumSet.of(DispatcherType.INCLUDE, DispatcherType.REQUEST));

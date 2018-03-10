@@ -36,7 +36,7 @@ public class WebSocketMessageHandler implements Runnable, ServiceMessageHandler{
 	public WebSocketMessageHandler() {
 
 		peers = new ConcurrentHashMap<>();
-		this.messageService = new SocketMessageService("localhost",8181);
+		this.messageService = new SocketMessageService("localhost", 8181);
 		messageService.addReceiver(this);
 		wsMessages = new ConcurrentLinkedQueue<>();
 		taskThread = new Thread(this, serviceName);
@@ -57,6 +57,18 @@ public class WebSocketMessageHandler implements Runnable, ServiceMessageHandler{
 		while(!queue.isEmpty()) {
 			ServiceMessage message = queue.poll();
 			WSMessage wMessage = gson.fromJson(message.getContent(), WSMessage.class);
+			if (wMessage.getId() == 0) {
+				PlainChatMessage cMessage = new PlainChatMessage();
+				ServiceMessage sMessage = new ServiceMessage();
+				sMessage.setSender(serviceName);
+				sMessage.setReceiver("DBMessageHandler");
+				cMessage = new PlainChatMessage();
+				cMessage.setSender(wMessage.getReceiver());
+				cMessage.setReceiver(wMessage.getSender());
+				sMessage.setContent(gson.toJson(new DBMessage("refresh", cMessage)));
+				messageService.putMessage(sMessage);
+				continue;
+			}
 			Session session = peers.get(wMessage.getReceiver());
 			if (session != null) {
 				try {
@@ -75,7 +87,7 @@ public class WebSocketMessageHandler implements Runnable, ServiceMessageHandler{
 		}
 		}
 		try {
-			Thread.currentThread().sleep(5000);
+			Thread.currentThread().sleep(50);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -110,6 +122,7 @@ public class WebSocketMessageHandler implements Runnable, ServiceMessageHandler{
 		sMessage.setContent(gson.toJson(new DBMessage("save", cMessage)));
 		messageService.putMessage(sMessage);
 		
+		/*
 		sMessage = new ServiceMessage();
 		sMessage.setSender(serviceName);
 		sMessage.setReceiver("DBMessageHandler");
@@ -118,6 +131,7 @@ public class WebSocketMessageHandler implements Runnable, ServiceMessageHandler{
 		cMessage.setReceiver(mSender);
 		sMessage.setContent(gson.toJson(new DBMessage("refresh", cMessage)));
 		messageService.putMessage(sMessage);
+		*/
 		
 
 	}

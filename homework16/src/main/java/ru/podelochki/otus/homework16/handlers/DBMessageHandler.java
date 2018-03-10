@@ -1,13 +1,9 @@
 package ru.podelochki.otus.homework16.handlers;
 
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.List;
 import java.util.Queue;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import com.google.gson.Gson;
 
@@ -15,15 +11,13 @@ import ru.podelochki.otus.homework16.messages.DBMessage;
 import ru.podelochki.otus.homework16.messages.PlainChatMessage;
 import ru.podelochki.otus.homework16.messages.RegisterMessage;
 import ru.podelochki.otus.homework16.messages.ServiceMessage;
-import ru.podelochki.otus.homework16.messages.SocketMessage;
 import ru.podelochki.otus.homework16.messages.WSMessage;
 import ru.podelochki.otus.homework16.models.AppUser;
 import ru.podelochki.otus.homework16.models.ChatMessage;
 import ru.podelochki.otus.homework16.services.ClientMessageService;
 import ru.podelochki.otus.homework16.services.DBService;
 import ru.podelochki.otus.homework16.services.ServiceMessageHandler;
-import ru.podelochki.otus.homework16.services.SocketMessageHandler;
-import ru.podelochki.otus.homework16.services.SocketSession;
+
 
 
 
@@ -34,9 +28,6 @@ public class DBMessageHandler implements ServiceMessageHandler{
 	private final Gson gson = new Gson();
 	private ClientMessageService messageService;
 
-	private boolean registered;
-
-	private char[] sizeMarker = new char[4];
 	InputStreamReader in;
 	OutputStreamWriter out;
 
@@ -69,7 +60,7 @@ public class DBMessageHandler implements ServiceMessageHandler{
 			}
 			}
 			try {
-				Thread.currentThread().sleep(5000);
+				Thread.currentThread().sleep(50);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -86,9 +77,17 @@ public class DBMessageHandler implements ServiceMessageHandler{
 		if (dMessage.getType().equals("save")) {
 			PlainChatMessage pMessage = dMessage.getMessage();
 			ChatMessage cMessage = pMessage.getChatMessage();
-			cMessage.setSender(dbService.getUserByUsername(pMessage.getSender()));
+			AppUser tmpUser = dbService.getUserByUsername(pMessage.getSender()); 
+			cMessage.setSender(tmpUser);
 			cMessage.setReceiver(dbService.getUserByUsername(pMessage.getReceiver()));
 			dbService.saveMessage(cMessage);
+			ServiceMessage tmpMessage = new ServiceMessage();
+			tmpMessage.setSender(message.getReceiver());
+			tmpMessage.setReceiver(tmpUser.getActiveNode());
+			WSMessage textMessage = new WSMessage(cMessage.getSender().getUsername(), cMessage.getReceiver().getUsername(), null);
+			//textMessage.setId(cMessage.getId());
+			tmpMessage.setContent(gson.toJson(textMessage));
+			messageService.putMessage(tmpMessage);
 			return null;
 		}
 		if (dMessage.getType().equals("refresh")) {

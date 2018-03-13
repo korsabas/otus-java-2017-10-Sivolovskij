@@ -2,7 +2,10 @@ package ru.podelochki.otus.homework16;
 
 import java.io.IOException;
 import java.util.EnumSet;
+import java.util.Map;
+import java.util.Map.Entry;
 
+import javax.jws.WebService;
 import javax.servlet.DispatcherType;
 import javax.servlet.ServletException;
 import javax.websocket.server.ServerContainer;
@@ -11,8 +14,14 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.websocket.jsr356.server.deploy.WebSocketServerContainerInitializer;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.web.context.ContextLoaderListener;
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.context.support.XmlWebApplicationContext;
 
 import ru.podelochki.otus.homework16.config.DBServiceConfig;
 import ru.podelochki.otus.homework16.config.MessageServiceConfig;
@@ -20,6 +29,7 @@ import ru.podelochki.otus.homework16.config.WebServiceConfig;
 import ru.podelochki.otus.homework16.services.DBService;
 import ru.podelochki.otus.homework16.services.DBServiceHibernateImpl;
 import ru.podelochki.otus.homework16.services.ServerSocketService;
+import ru.podelochki.otus.homework16.services.SocketConnectionProperties;
 import ru.podelochki.otus.homework16.services.TemplateProcessor;
 import ru.podelochki.otus.homework16.servlets.AutorizationFilter;
 import ru.podelochki.otus.homework16.servlets.CacheServlet;
@@ -96,10 +106,27 @@ public class MessageProcess
     }
     private static void initializeWebService(String msHost, int msport, int serverPort) throws Exception {
 
+    	XmlWebApplicationContext ctx = new XmlWebApplicationContext();
+    	ctx.setConfigLocation("classpath*:**/WEB-INF/applicationContext.xml");
+    	ctx.addBeanFactoryPostProcessor(new BeanFactoryPostProcessor(){
+    		
+    		@Override
+    		public void postProcessBeanFactory(ConfigurableListableBeanFactory bf)
+    		        throws BeansException {
+
+    		    SocketConnectionProperties scp = bf.getBean(SocketConnectionProperties.class);
+    		    
+    		    scp.setHost(msHost);
+    		    scp.setPort(msport);
+    		    
+    		}
+
+    	});
     	Server server = new Server(serverPort);
     	ServletContextHandler servletCTX = new ServletContextHandler(ServletContextHandler.SESSIONS);
     	TemplateProcessor tp = new TemplateProcessor();
-    	servletCTX.addEventListener(new ServletContextListener());
+    	
+    	servletCTX.addEventListener(new ContextLoaderListener(ctx));
     	servletCTX.addFilter(AutorizationFilter.class, "/*", EnumSet.of(DispatcherType.INCLUDE, DispatcherType.REQUEST));
     	servletCTX.addServlet(new ServletHolder(CacheServlet.class), "/");
     	servletCTX.addServlet(new ServletHolder(LoginServlet.class), "/login");
@@ -115,4 +142,5 @@ public class MessageProcess
         server.start();
         server.join();
     }
+    
 }

@@ -32,11 +32,11 @@ public class WebSocketMessageHandler implements Runnable, ServiceMessageHandler{
 	private final Thread taskThread;
 	private final Gson gson = new Gson();
 	
-	//@Autowired
-	public WebSocketMessageHandler() {
+	@Autowired
+	public WebSocketMessageHandler(SocketConnectionProperties properties) {
 
 		peers = new ConcurrentHashMap<>();
-		this.messageService = new SocketMessageService("localhost", 8181);
+		this.messageService = new SocketMessageService(properties.getHost(), properties.getPort());
 		messageService.addReceiver(this);
 		wsMessages = new ConcurrentLinkedQueue<>();
 		taskThread = new Thread(this, serviceName);

@@ -14,7 +14,6 @@ public class ServletContextListener extends ContextLoaderListener {
     @Override
     public void contextInitialized(ServletContextEvent arg0) {
         super.contextInitialized(arg0);
-        //SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(new WebSocketMessageHandler(host, port));
     }
 
     @Override
